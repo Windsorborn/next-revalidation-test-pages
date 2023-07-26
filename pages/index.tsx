@@ -1,3 +1,5 @@
+import type { InferGetStaticPropsType, GetStaticProps } from 'next'
+import Link from 'next/link'
 import Head from 'next/head'
 import Image from 'next/image'
 import { Inter } from 'next/font/google'
@@ -5,7 +7,13 @@ import styles from '@/styles/Home.module.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
+type WB_TimeZone = {
+  datetime: string
+}
+
+export default function Home({
+  data,
+} : InferGetStaticPropsType<typeof getStaticProps>) {
   return (
     <>
       <Head>
@@ -48,22 +56,19 @@ export default function Home() {
             height={37}
             priority
           />
+          {data?.datetime && <div>{data.datetime}</div>}
         </div>
 
         <div className={styles.grid}>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <h2>
-              Docs <span>-&gt;</span>
-            </h2>
-            <p>
-              Find in-depth information about Next.js features and&nbsp;API.
-            </p>
-          </a>
+        <Link
+          href="/another-page"
+          className={styles.card}
+        >
+          <h2>
+            Another Page <span>-&gt;</span>
+          </h2>
+          <p>Find in-depth information about Next.js features and API.</p>
+        </Link>
 
           <a
             href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
@@ -111,4 +116,12 @@ export default function Home() {
       </main>
     </>
   )
+}
+
+export const getStaticProps: GetStaticProps<{
+  data: WB_TimeZone
+}> = async () => {
+  const res = await fetch(`http://worldtimeapi.org/api/timezone/Australia/Sydney?t=${Date.now()}`)
+  const data = await res.json()
+  return { props: { data } }
 }
